@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 
-public class Serie {
+public class Series {
 
     @JsonIgnore
     private Long id;
