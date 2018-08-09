@@ -81,4 +81,5 @@ public class Series {
     public void setStudios(List<String> studios) {
         this.studios = studios;
     }
+
 }
