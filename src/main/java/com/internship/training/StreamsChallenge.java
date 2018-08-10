@@ -23,7 +23,7 @@ public class StreamsChallenge {
         getBestStudio();
         getBestGenre();
         getWorstGenre();
-        getTop5MostCommmonEpisodeCount();
+        getTop5MostCommonEpisodeCount();
         getAverageRatingOfCommedySeries();
         getMostCommonGenreWhereSugitaTomokazuActs();
         getBestActor();
@@ -117,15 +117,14 @@ public class StreamsChallenge {
     private void getBestStudio() {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Studio:");
-        //TODO print the name and the average rating of the best Studio
-        Map<String, Double> studios = new HashMap<>();
-        series.stream().flatMap(series1 -> series1.getStudios().stream()).distinct()
-                .forEach(studio -> studios.put(studio, series.stream()
-                        .filter(series2 -> series2.getStudios().contains(studio))
-                        .collect(Collectors.averagingDouble(Series::getRating))
-                ));
-        studios.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
-                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)"));
+        //TODO print the name and the average rating of the best Studio}
+        series.stream().flatMap(s -> s.getStudios().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(studio -> studio, studio ->
+                        series.stream().filter(s1 -> s1.getStudios().contains(studio))
+                                .collect(Collectors.averagingDouble(Series::getRating)), (a, b) -> a)
+                ).entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
+                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)")
+                );
         System.out.println("------------------------------------------------------------");
     }
 
@@ -133,14 +132,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best genre:");
         //TODO print the name and the average rating of the best Genre
-        Map<String, Double> genres = new HashMap<>();
-        series.stream().flatMap(series1 -> series1.getGenres().stream()).distinct()
-                .forEach(genre -> genres.put(genre, series.stream()
-                        .filter(series2 -> series2.getGenres().contains(genre))
-                        .collect(Collectors.averagingDouble(Series::getRating))
-                ));
-        genres.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
-                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)"));
+        series.stream().flatMap(s -> s.getGenres().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(genre -> genre, genre ->
+                        series.stream().filter(s1 -> s1.getGenres().contains(genre))
+                                .collect(Collectors.averagingDouble(Series::getRating)), (a, b) -> a)
+                ).entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
+                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)")
+                );
         System.out.println("------------------------------------------------------------");
     }
 
@@ -148,28 +146,25 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Worst genre:");
         //TODO print the name and the average rating of the worst Genre
-        Map<String, Double> genres = new HashMap<>();
-        series.stream().flatMap(series1 -> series1.getGenres().stream()).distinct()
-                .forEach(genre -> genres.put(genre, series.stream()
-                        .filter(series2 -> series2.getGenres().contains(genre))
-                        .collect(Collectors.averagingDouble(Series::getRating))
-                ));
-        genres.entrySet().stream().min(Comparator.comparingDouble(Map.Entry::getValue))
-                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)"));
+        series.stream().flatMap(s -> s.getGenres().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(genre -> genre, genre ->
+                        series.stream().filter(s1 -> s1.getGenres().contains(genre))
+                                .collect(Collectors.averagingDouble(Series::getRating)), (a, b) -> a)
+                ).entrySet().stream().min(Comparator.comparingDouble(Map.Entry::getValue))
+                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)")
+                );
         System.out.println("------------------------------------------------------------");
     }
 
-    private void getTop5MostCommmonEpisodeCount() {
+    private void getTop5MostCommonEpisodeCount() {
         System.out.println("------------------------------------------------------------");
         System.out.println("Top 5 episode count:");
         //TODO print the count and value of the top 5 most common episode count  - example:  100 shows have 25 episodes
-        Map<Integer, Long> commonEpisodesCount = new HashMap<>();
-        series.stream().map(Series::getEpisodes).distinct()
-                .forEach(episode -> commonEpisodesCount.put(episode, series.stream()
-                        .filter(series2 -> series2.getEpisodes() == episode)
-                        .count()
-                ));
-        commonEpisodesCount.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+        series.stream().map(Series::getEpisodes).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(episode -> episode, episode ->
+                        series.stream().filter(s1 -> s1.getEpisodes() == episode)
+                                .count(), (a, b) -> a)
+                ).entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                 .limit(5)
                 .forEach(map -> System.out.println(map.getValue() + " shows have " + map.getKey() + " episodes"));
         System.out.println("------------------------------------------------------------");
@@ -188,15 +183,11 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Sugita Tomokazu most common genre:");
         //TODO print the most common genre where 'Sugita,Tomokazu' acts - the most common genre of the shows where 'Sugita,Tomokazu' is in mainCast
-        Map<String, Long> genresWhereSugitaActs = new HashMap<>();
-        series.stream().filter(series1 -> series1.getMainCast().contains("Sugita,Tomokazu"))
-                .flatMap(series1 -> series1.getGenres().stream())
-                .distinct()
-                .forEach(genre -> genresWhereSugitaActs.put(genre, series.stream()
-                        .filter(series2 -> series2.getGenres().contains(genre))
-                        .count()
-                ));
-        genresWhereSugitaActs.entrySet().stream().max(Comparator.comparingLong(Map.Entry::getValue))
+        series.stream().filter(s1->s1.getMainCast().contains("Sugita,Tomokazu")).flatMap(s1->s1.getGenres().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(genre -> genre, genre->
+                        series.stream().filter(s2->s2.getGenres().contains(genre))
+                                .count(), (a, b) -> a)
+                ).entrySet().stream().max(Comparator.comparingLong(Map.Entry::getValue))
                 .ifPresent(map -> System.out.println(map.getKey() + ": " + map.getValue() + " performances"));
         System.out.println("------------------------------------------------------------");
     }
@@ -205,14 +196,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Actor:");
         //TODO print the name and the average rating of the best Actor
-        Map<String, Double> actors = new HashMap<>();
-        series.stream().flatMap(series1 -> series1.getMainCast().stream()).distinct()
-                .forEach(actor -> actors.put(actor, series.stream()
-                        .filter(series2 -> series2.getMainCast().contains(actor))
-                        .collect(Collectors.averagingDouble(Series::getRating))
-                ));
-        actors.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
-                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)"));
+        series.stream().flatMap(s -> s.getMainCast().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(actor -> actor, actor ->
+                        series.stream().filter(s1 -> s1.getMainCast().contains(actor))
+                                .collect(Collectors.averagingDouble(Series::getRating)), (a, b) -> a)
+                ).entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
+                .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)")
+                );
         System.out.println("------------------------------------------------------------");
 
     }
@@ -221,15 +211,11 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Shounen Studio:");
         //TODO print the name and the average rating (of the shounen series) of the best Shounen Studio - the studio with the best 'Shounen' (genre) series
-        Map<String, Double> studiosShounen = new HashMap<>();
-        series.stream().filter(series1 -> series1.getGenres().contains("Shounen"))
-                .flatMap(series1 -> series1.getStudios().stream())
-                .distinct()
-                .forEach(studio -> studiosShounen.put(studio, series.stream()
-                        .filter(series2 -> series2.getStudios().contains(studio))
-                        .collect(Collectors.averagingDouble(Series::getRating))
-                ));
-        studiosShounen.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
+        series.stream().filter(s1->s1.getGenres().contains("Shounen")).flatMap(s1->s1.getStudios().stream()).distinct().collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(studio -> studio, studio->
+                        series.stream().filter(s2->s2.getStudios().contains(studio))
+                                .collect(Collectors.averagingDouble(Series::getRating)), (a, b) -> a)
+                ).entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue))
                 .ifPresent(map -> System.out.println(map.getKey() + String.format(": %.3f", map.getValue()) + " (average Rating)"));
         System.out.println("------------------------------------------------------------");
 
