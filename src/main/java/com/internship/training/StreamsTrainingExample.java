@@ -57,7 +57,7 @@ public class StreamsTrainingExample {
                 .distinct()
                 .boxed()
                 .collect(Collectors.toList());
-        System.out.println(distinctIntegers);
+        System.out.println(distinctIntegers );
 
     }
 
