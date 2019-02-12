@@ -3,6 +3,7 @@ package com.internship.training;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -10,13 +11,19 @@ import java.util.stream.Stream;
 public class StreamsTrainingExample {
 
     public static void main(String[] args) {
-        streamsMap();
-        streamsFlatMap();
+        pruebaOf();
+        //streamsMap();
+        //streamsFlatMap();
         streamsFilter();
-        streamsDistinct();
-        streamsSorted();
-        streamsLimit();
-        streamsReduce();
+        //streamsDistinct();
+        //streamsSorted();
+        //streamsLimit();
+        //streamsReduce();
+    }
+
+    public static void pruebaOf(){
+
+
     }
 
 
@@ -51,21 +58,23 @@ public class StreamsTrainingExample {
         System.out.println(elementsLessThanThree);
     }
 
+
+
     public static void streamsDistinct() {
 
-        List<Integer> distinctIntegers = IntStream.of(5, 6, 6, 6, 3, 2, 2)
+        List<Integer> distinctIntegers = IntStream.of(1,5, 6, 6, 6, 3, 2, 2)
                 .distinct()
-                .boxed()
+                .sorted()
+                .boxed() //?
                 .collect(Collectors.toList());
         System.out.println(distinctIntegers);
 
     }
 
     public static void streamsSorted() {
-        List<Integer> sortedNumbers = Stream.of(5, 3, 1, 3, 6).limit(2).sorted().distinct()
+        List<Integer> sortedNumbers = Stream.of(5, 3, 1, 3, 6).limit(3).sorted().distinct()
                 .collect(Collectors.toList());
         System.out.println(sortedNumbers);
-
     }
 
     public static void streamsLimit() {
