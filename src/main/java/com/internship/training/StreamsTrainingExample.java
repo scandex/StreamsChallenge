@@ -2,6 +2,7 @@ package com.internship.training;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -17,6 +18,7 @@ public class StreamsTrainingExample {
         streamsSorted();
         streamsLimit();
         streamsReduce();
+        streamsReduceInt();
     }
 
 
@@ -46,8 +48,8 @@ public class StreamsTrainingExample {
     }
 
     public static void streamsFilter() {
-        long elementsLessThanThree = Stream.of(1, 2, 3, 4)
-                .filter(p -> p.intValue() < 3).count();
+        long elementsLessThanThree = Stream.of(1, 2, 3, 3, 3, 4)
+                .filter(p -> p.intValue() <= 3).count();
         System.out.println(elementsLessThanThree);
     }
 
@@ -62,36 +64,30 @@ public class StreamsTrainingExample {
     }
 
     public static void streamsSorted() {
-        List<Integer> sortedNumbers = Stream.of(5, 3, 1, 3, 6).limit(2).sorted().distinct()
+        List<Integer> sortedNumbers = Stream.of(3, 3, 1, 3, 6).limit(4).sorted().distinct()
                 .collect(Collectors.toList());
         System.out.println(sortedNumbers);
 
     }
 
     public static void streamsLimit() {
-       Stream.of("limit", "by", "two").limit(2).forEach(System.out::println);
+       Stream.of("limit", "by", "two").limit(3).forEach(System.out::println);
 //                .collect(Collectors.toList());
 //        System.out.println(vals);
 
     }
 
     public static void streamsReduce(){
-        String[] myArray = { "this" };
+        String[] myArray = { "this", " " , "is ", "", "sparta"};
         String result = Arrays.stream(myArray)
                 .reduce("hola", (a,b) -> a + b);
         System.out.println(result);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    public static void streamsReduceInt(){
+        Integer[] myArray = { 1,2,3,4,5,6,7,8 };
+        Integer result = Arrays.stream(myArray)
+                .reduce(0, (a,b) -> a + b);
+        System.out.println(result);
+    }
 }
