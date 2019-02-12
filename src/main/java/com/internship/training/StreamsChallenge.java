@@ -49,7 +49,7 @@ public class StreamsChallenge {
             e.printStackTrace();
         }
     }
-
+    
     private void getEpisodesTotalCount(){
         System.out.println("------------------------------------------------------------");
         int count = 0;
@@ -60,7 +60,6 @@ public class StreamsChallenge {
         System.out.println(String.format("Total episodes: %d",count));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getAverageEpisodesCount(){
         System.out.println("------------------------------------------------------------");
         double average = 0;
@@ -72,7 +71,6 @@ public class StreamsChallenge {
         System.out.println(String.format("Average number of episodes: %f",average));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getMaxEpisodeCount(){
         System.out.println("------------------------------------------------------------");
         int count = 0;
@@ -85,7 +83,6 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
 
     }
-
     private void getBest10SeriesByRating(){
         System.out.println("------------------------------------------------------------");
         System.out.println("These are the top 10 series:");
@@ -99,7 +96,6 @@ public class StreamsChallenge {
                         System.out.println(topTen.getName()));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getAllGenres(){
         System.out.println("------------------------------------------------------------");
         System.out.println("These are all the genres found:");
@@ -113,7 +109,6 @@ public class StreamsChallenge {
                 .forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
     }
-
     private void getSeriesByStudioShaft(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Series by Studio Shaft:");
@@ -127,7 +122,6 @@ public class StreamsChallenge {
                         System.out.println(studioShaft.getName()));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getMostEpisodesSeries(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Show with most episodes:");
@@ -141,7 +135,6 @@ public class StreamsChallenge {
                         System.out.println(mostESeries.getName()+" "+mostESeries.getEpisodes()));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getBestStudio(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Studio:");
@@ -151,11 +144,11 @@ public class StreamsChallenge {
                 .flatMap(Collection::stream)
                 .distinct()
                 .collect(Collectors
-                        .toMap(String::toString,s ->
+                        .toMap(String::toString,serieStudio ->
                                 series.stream()
                                         .filter(seriesAverage ->
                                                 seriesAverage.getStudios()
-                                                        .contains(s))
+                                                        .contains(serieStudio))
                                         .mapToDouble(Series::getRating)
                                         .average()
                                         .orElse(-1)))
@@ -166,7 +159,6 @@ public class StreamsChallenge {
                 .limit(1).forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
     }
-
     private void getBestGenre(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best genre:");
@@ -175,11 +167,11 @@ public class StreamsChallenge {
                 .map(Series::getGenres)
                 .flatMap(Collection::stream).distinct()
                 .collect(Collectors
-                        .toMap(String::toString,s ->
+                        .toMap(String::toString,seriesGenre ->
                                 series.stream()
                                         .filter(seriesAverage ->
                                                 seriesAverage.getGenres()
-                                                        .contains(s))
+                                                        .contains(seriesGenre))
                                         .mapToDouble(Series::getRating)
                                         .average()
                                         .orElse(-1)))
@@ -192,7 +184,6 @@ public class StreamsChallenge {
                 .forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
     }
-
     private void getWorstGenre(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Worst genre:");
@@ -202,11 +193,11 @@ public class StreamsChallenge {
                 .flatMap(Collection::stream)
                 .distinct()
                 .collect(Collectors
-                        .toMap(String::toString,s ->
+                        .toMap(String::toString,serieGenre ->
                                 series.stream()
                                         .filter(seriesAverage ->
                                                 seriesAverage.getGenres()
-                                                        .contains(s))
+                                                        .contains(serieGenre))
                                         .mapToDouble(Series::getRating)
                                         .average()
                                         .orElse(-1)))
@@ -218,7 +209,6 @@ public class StreamsChallenge {
                 .forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
     }
-
     private void getTop5MostCommmonEpisodeCount(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Top 5 episode count:");
@@ -237,7 +227,6 @@ public class StreamsChallenge {
                         System.out.println(String.format("%d shows have %d episodes",episodeCount.getValue(),episodeCount.getKey())));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getAverageRatingOfCommedySeries(){
         System.out.println("------------------------------------------------------------");
         double average = 0;
@@ -253,7 +242,6 @@ public class StreamsChallenge {
         System.out.println(String.format("Average rating of comedy series: %f",average));
         System.out.println("------------------------------------------------------------");
     }
-
     private void getMostCommonGenreWhereSugitaTomokazuActs(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Sugita Tomokazu most common genre:");
@@ -284,7 +272,6 @@ public class StreamsChallenge {
                 .forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
     }
-
     private void getBestActor(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Actor:");
@@ -296,11 +283,11 @@ public class StreamsChallenge {
                         .toSet())
                 .stream()
                 .collect(Collectors
-                        .toMap(String::toString, s ->
+                        .toMap(String::toString, serieCast ->
                                 series.stream()
                                         .filter(actorSeries ->
                                                 actorSeries.getMainCast()
-                                                        .contains(s))
+                                                        .contains(serieCast))
                                         .mapToDouble(Series::getRating)
                                         .average()
                                         .orElse(-1)))
@@ -312,9 +299,7 @@ public class StreamsChallenge {
                 .limit(1)
                 .forEach(System.out::println);
         System.out.println("------------------------------------------------------------");
-
     }
-
     private void getBestShounenStudio(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Shounen Studio:");
@@ -327,11 +312,11 @@ public class StreamsChallenge {
                 .flatMap(Collection::stream)
                 .distinct()
                 .collect(Collectors
-                        .toMap(String::toString,s ->
+                        .toMap(String::toString,serieStudios ->
                                 series.stream()
                                         .filter(shounenSeries ->
                                                 shounenSeries.getStudios()
-                                                        .contains(s))
+                                                        .contains(serieStudios))
                                         .mapToDouble(Series::getRating)
                                         .average()
                                         .orElse(-1)))
