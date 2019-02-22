@@ -2,6 +2,7 @@ package com.internship.training;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -139,20 +140,21 @@ public class StreamsChallenge {
     private void getBestStudio(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Studio:");
+
         this.series.stream()
                 .map(Series::getStudios)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        studio -> this.series.stream()
-                            .filter(item -> item.getStudios().contains(studio))
-                            .mapToDouble(Series::getRating)
-                            .average()
-                            .orElse(0)
-                ))
-                .entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
+                .map(studio -> {
+                        double average = this.series.stream()
+                                        .filter(item -> item.getStudios().contains(studio))
+                                        .mapToDouble(Series::getRating)
+                                        .average()
+                                        .getAsDouble();
+                        return new Pair<String, Double>(studio, average);
+                    }
+                )
+                .max(Comparator.comparing(Pair::getValue))
                 .ifPresent(item -> {
                     System.out.println("Name:\t" + item.getKey());
                     System.out.println("Average:\t" + item.getValue());
@@ -168,16 +170,16 @@ public class StreamsChallenge {
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        genre -> this.series.stream()
-                                .filter(x -> x.getGenres().contains(genre))
+                .map(genre -> {
+                        double average = this.series.stream()
+                                .filter(item -> item.getGenres().contains(genre))
                                 .mapToDouble(Series::getRating)
                                 .average()
-                                .orElse(0)
-                ))
-                .entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
+                                .getAsDouble();
+                        return new Pair<String, Double>(genre, average);
+                    }
+                )
+                .max(Comparator.comparing(Pair::getValue))
                 .ifPresent(item -> {
                     System.out.println("Name:\t" + item.getKey());
                     System.out.format("Average:\t %.3f\n", item.getValue());
@@ -193,16 +195,16 @@ public class StreamsChallenge {
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        genre -> this.series.stream()
-                                .filter(item -> item.getGenres().contains(genre))
-                                .mapToDouble(Series::getRating)
-                                .average()
-                                .orElse(0)
-                ))
-                .entrySet().stream()
-                .min(Comparator.comparing(Map.Entry::getValue))
+                .map(genre -> {
+                            double average = this.series.stream()
+                                    .filter(item -> item.getGenres().contains(genre))
+                                    .mapToDouble(Series::getRating)
+                                    .average()
+                                    .getAsDouble();
+                            return new Pair<String, Double>(genre, average);
+                        }
+                )
+                .min(Comparator.comparing(Pair::getValue))
                 .ifPresent(item -> {
                     System.out.println("Name:\t" + item.getKey());
                     System.out.format("Average:\t %.3f\n", item.getValue());
@@ -216,9 +218,12 @@ public class StreamsChallenge {
         System.out.println("Top 5 episode count:");
         this.series.stream()
                 .map(Series::getEpisodes)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getValue)))
+                .map(episode -> {
+                    int count = (int)this.series.stream().map(Series::getEpisodes).filter(item -> item.equals(episode)).count();
+                    return new Pair<Integer, Integer>(episode, count);
+                })
+                .distinct()
+                .sorted(Collections.reverseOrder(Comparator.comparing(Pair::getValue)))
                 .limit(5)
                 .forEach(item -> System.out.println(item.getValue() + " shows have "+ item.getKey() + " episodes"));
 
@@ -231,7 +236,7 @@ public class StreamsChallenge {
                 .filter(item -> item.getGenres().contains("Comedy"))
                 .mapToDouble(Series::getRating)
                 .average()
-                .ifPresent(average -> System.out.printf("Average rating of comedy series: %.3f", average));
+                .ifPresent(average -> System.out.printf("Average rating of comedy series: %.3f\n", average));
 
         System.out.println("------------------------------------------------------------");
     }
@@ -248,6 +253,24 @@ public class StreamsChallenge {
                 .max(Comparator.comparing(Map.Entry::getValue))
                 .ifPresent(item -> System.out.println(item.getKey()));
 
+        this.series.stream()
+                .filter(item -> item.getMainCast().contains("Sugita,Tomokazu"))
+                .map(Series::getGenres)
+                .flatMap(Collection::stream)
+                .distinct()
+                .map(item -> {
+                    int count = (int)this.series.stream()
+                            .filter(x -> x.getMainCast().contains("Sugita,Tomokazu"))
+                            .map(Series::getGenres)
+                            .flatMap(Collection::stream)
+                            .filter(x -> x.equals(item))
+                            .count();
+
+                    return new Pair<String, Integer>(item, count);
+                })
+                .max(Comparator.comparing(Pair::getValue))
+                .ifPresent(item -> System.out.println(item.getKey()));
+
         System.out.println("------------------------------------------------------------");
     }
 
@@ -258,16 +281,16 @@ public class StreamsChallenge {
                 .map(Series::getMainCast)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        mainCast -> this.series.stream()
-                                .filter(item -> item.getMainCast().contains(mainCast))
-                                .mapToDouble(Series::getRating)
-                                .average()
-                                .orElse(0)
-                ))
-                .entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
+                .map(mainCast -> {
+                            double average = this.series.stream()
+                                    .filter(item -> item.getMainCast().contains(mainCast))
+                                    .mapToDouble(Series::getRating)
+                                    .average()
+                                    .getAsDouble();
+                            return new Pair<String, Double>(mainCast, average);
+                        }
+                )
+                .max(Comparator.comparing(Pair::getValue))
                 .ifPresent(item -> {
                     System.out.println("Name:\t" + item.getKey());
                     System.out.format("Average:\t %.3f\n", item.getValue());
@@ -285,16 +308,16 @@ public class StreamsChallenge {
                 .map(Series::getStudios)
                 .flatMap(Collection::stream)
                 .distinct()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        studio -> this.series.stream()
-                            .filter(x -> x.getStudios().contains(studio))
-                            .mapToDouble(Series::getRating)
-                            .average()
-                            .orElse(0)
-                ))
-                .entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
+                .map(studio -> {
+                            double average = this.series.stream()
+                                    .filter(item -> item.getStudios().contains(studio))
+                                    .mapToDouble(Series::getRating)
+                                    .average()
+                                    .getAsDouble();
+                            return new Pair<String, Double>(studio, average);
+                        }
+                )
+                .max(Comparator.comparing(Pair::getValue))
                 .ifPresent(item -> {
                     System.out.println("Name:\t" + item.getKey());
                     System.out.format("Average:\t %.3f\n", item.getValue());
