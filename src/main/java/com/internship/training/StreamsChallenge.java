@@ -2,10 +2,13 @@ package com.internship.training;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,23 +63,25 @@ public class StreamsChallenge {
 
     private void getAverageEpisodesCount(){
         System.out.println("------------------------------------------------------------");
-        double average = this.series.stream()
+        this.series.stream()
                 .mapToInt(Series::getEpisodes)
                 .average()
-                .orElse(0);
+                .ifPresent(average ->
+                        System.out.println(String.format("Average number of episodes: %.3f", average))
+                );
 
-        System.out.println(String.format("Average number of episodes: %f", average));
         System.out.println("------------------------------------------------------------");
     }
 
     private void getMaxEpisodeCount(){
         System.out.println("------------------------------------------------------------");
-        int count = this.series.stream()
+        this.series.stream()
                 .mapToInt(Series::getEpisodes)
                 .max()
-                .orElse(0);
+                .ifPresent(count ->
+                        System.out.println(String.format("Max number of episodes: %d", count))
+                );
 
-        System.out.println(String.format("Max number of episodes: %d",count));
         System.out.println("------------------------------------------------------------");
 
     }
@@ -222,13 +227,12 @@ public class StreamsChallenge {
 
     private void getAverageRatingOfCommedySeries(){
         System.out.println("------------------------------------------------------------");
-        double average = this.series.stream()
+        this.series.stream()
                 .filter(item -> item.getGenres().contains("Comedy"))
                 .mapToDouble(Series::getRating)
                 .average()
-                .orElse(0);
+                .ifPresent(average -> System.out.printf("Average rating of comedy series: %.3f", average));
 
-        System.out.println(String.format("Average rating of comedy series: %.3f", average));
         System.out.println("------------------------------------------------------------");
     }
 
