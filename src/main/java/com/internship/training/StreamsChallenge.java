@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StreamsChallenge {
@@ -54,7 +52,7 @@ public class StreamsChallenge {
 
     private void getEpisodesTotalCount(){
         System.out.println("------------------------------------------------------------");
-        int count = this.series.stream()
+        final int count = this.series.stream()
                 .mapToInt(Series::getEpisodes)
                 .sum();
 
@@ -64,25 +62,23 @@ public class StreamsChallenge {
 
     private void getAverageEpisodesCount(){
         System.out.println("------------------------------------------------------------");
-        this.series.stream()
+        final double average = this.series.stream()
                 .mapToInt(Series::getEpisodes)
                 .average()
-                .ifPresent(average ->
-                        System.out.println(String.format("Average number of episodes: %.3f", average))
-                );
+                .getAsDouble();
 
+        System.out.printf("Average number of episodes: %f", average);
         System.out.println("------------------------------------------------------------");
     }
 
     private void getMaxEpisodeCount(){
         System.out.println("------------------------------------------------------------");
-        this.series.stream()
+        final int count = this.series.stream()
                 .mapToInt(Series::getEpisodes)
                 .max()
-                .ifPresent(count ->
-                        System.out.println(String.format("Max number of episodes: %d", count))
-                );
+                .getAsInt();
 
+        System.out.println(String.format("Max number of episodes: %d", count));
         System.out.println("------------------------------------------------------------");
 
     }
@@ -127,13 +123,12 @@ public class StreamsChallenge {
     private void getMostEpisodesSeries(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Show with most episodes:");
-        this.series.stream()
+        final Series answer = this.series.stream()
                 .max(Comparator.comparing(Series::getEpisodes))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getName());
-                    System.out.println("Episodes:\t" + item.getEpisodes());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getName());
+        System.out.println("Episodes:\t" + answer.getEpisodes());
         System.out.println("------------------------------------------------------------");
     }
 
@@ -141,12 +136,12 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Studio:");
 
-        this.series.stream()
+        final Pair<String, Double> answer = this.series.stream()
                 .map(Series::getStudios)
                 .flatMap(Collection::stream)
                 .distinct()
                 .map(studio -> {
-                        double average = this.series.stream()
+                        final double average = this.series.stream()
                                         .filter(item -> item.getStudios().contains(studio))
                                         .mapToDouble(Series::getRating)
                                         .average()
@@ -155,18 +150,17 @@ public class StreamsChallenge {
                     }
                 )
                 .max(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getKey());
-                    System.out.println("Average:\t" + item.getValue());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getKey());
+        System.out.println("Average:\t" + answer.getValue());
         System.out.println("------------------------------------------------------------");
     }
 
     private void getBestGenre(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best genre:");
-        this.series.stream()
+        final Pair<String, Double> answer = this.series.stream()
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
@@ -180,18 +174,17 @@ public class StreamsChallenge {
                     }
                 )
                 .max(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getKey());
-                    System.out.format("Average:\t %.3f\n", item.getValue());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getKey());
+        System.out.printf("Average:\t %f\n", answer.getValue());
         System.out.println("------------------------------------------------------------");
     }
 
     private void getWorstGenre(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Worst genre:");
-        this.series.stream()
+        final Pair<String, Double> answer = this.series.stream()
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
@@ -205,11 +198,10 @@ public class StreamsChallenge {
                         }
                 )
                 .min(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getKey());
-                    System.out.format("Average:\t %.3f\n", item.getValue());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getKey());
+        System.out.printf("Average:\t %f\n", answer.getValue());
         System.out.println("------------------------------------------------------------");
     }
 
@@ -232,34 +224,27 @@ public class StreamsChallenge {
 
     private void getAverageRatingOfCommedySeries(){
         System.out.println("------------------------------------------------------------");
-        this.series.stream()
+        final double average = this.series.stream()
                 .filter(item -> item.getGenres().contains("Comedy"))
                 .mapToDouble(Series::getRating)
                 .average()
-                .ifPresent(average -> System.out.printf("Average rating of comedy series: %.3f\n", average));
+                .getAsDouble();
 
+        System.out.printf("Average rating of comedy series: %f\n", average);
         System.out.println("------------------------------------------------------------");
     }
 
     private void getMostCommonGenreWhereSugitaTomokazuActs(){
         System.out.println("------------------------------------------------------------");
         System.out.print("Sugita Tomokazu most common genre: \t");
-        this.series.stream()
-                .filter(item -> item.getMainCast().contains("Sugita,Tomokazu"))
-                .map(Series::getGenres)
-                .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                .entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue))
-                .ifPresent(item -> System.out.println(item.getKey()));
 
-        this.series.stream()
+        final Pair<String, Integer> answer = this.series.stream()
                 .filter(item -> item.getMainCast().contains("Sugita,Tomokazu"))
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
                 .map(item -> {
-                    int count = (int)this.series.stream()
+                    final int count = (int)this.series.stream()
                             .filter(x -> x.getMainCast().contains("Sugita,Tomokazu"))
                             .map(Series::getGenres)
                             .flatMap(Collection::stream)
@@ -269,20 +254,21 @@ public class StreamsChallenge {
                     return new Pair<String, Integer>(item, count);
                 })
                 .max(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> System.out.println(item.getKey()));
+                .get();
 
+        System.out.println(answer.getKey());
         System.out.println("------------------------------------------------------------");
     }
 
     private void getBestActor(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Actor:");
-        this.series.stream()
+        final Pair<String, Double> answer = this.series.stream()
                 .map(Series::getMainCast)
                 .flatMap(Collection::stream)
                 .distinct()
                 .map(mainCast -> {
-                            double average = this.series.stream()
+                            final double average = this.series.stream()
                                     .filter(item -> item.getMainCast().contains(mainCast))
                                     .mapToDouble(Series::getRating)
                                     .average()
@@ -291,11 +277,10 @@ public class StreamsChallenge {
                         }
                 )
                 .max(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getKey());
-                    System.out.format("Average:\t %.3f\n", item.getValue());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getKey());
+        System.out.printf("Average:\t %f\n", answer.getValue());
         System.out.println("------------------------------------------------------------");
 
     }
@@ -303,7 +288,7 @@ public class StreamsChallenge {
     private void getBestShounenStudio(){
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Shounen Studio:");
-        this.series.stream()
+        final Pair<String, Double> answer = this.series.stream()
                 .filter(item -> item.getGenres().contains("Shounen"))
                 .map(Series::getStudios)
                 .flatMap(Collection::stream)
@@ -318,11 +303,10 @@ public class StreamsChallenge {
                         }
                 )
                 .max(Comparator.comparing(Pair::getValue))
-                .ifPresent(item -> {
-                    System.out.println("Name:\t" + item.getKey());
-                    System.out.format("Average:\t %.3f\n", item.getValue());
-                });
+                .get();
 
+        System.out.println("Name:\t" + answer.getKey());
+        System.out.printf("Average:\t %f\n", answer.getValue());
         System.out.println("------------------------------------------------------------");
     }
 }
