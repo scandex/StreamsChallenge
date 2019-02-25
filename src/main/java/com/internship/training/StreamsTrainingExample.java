@@ -82,16 +82,4 @@ public class StreamsTrainingExample {
         System.out.println(result);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
 }
