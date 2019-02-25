@@ -42,7 +42,7 @@ public class Series {
         this.episodes = episodes;
     }
 
-    public Double getRating() {
+    public double getRating() {
         return rating;
     }
 

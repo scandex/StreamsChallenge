@@ -2,12 +2,18 @@ package com.internship.training;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import java.util.Map;
+
 
 public class StreamsChallenge {
     
@@ -24,8 +30,8 @@ public class StreamsChallenge {
         getBestStudio();
         getBestGenre();
         getWorstGenre();
-        getTop5MostCommonEpisodeCount();
-        getAverageRatingOfComedySeries();
+        getTop5MostCommmonEpisodeCount();
+        getAverageRatingOfCommedySeries();
         getMostCommonGenreWhereSugitaTomokazuActs();
         getBestActor();
         getBestShounenStudio();
@@ -38,7 +44,8 @@ public class StreamsChallenge {
     private void init(){
         try {
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("src\\main\\resources\\series.json");
+            ClassLoader classLoader = getClass().getClassLoader();
+            File file = new File(classLoader.getResource("series.json").getFile());
             List<Series> importedSeries = mapper.readValue(file,new TypeReference<List<Series>>(){});
             this.series = importedSeries.stream().filter(x->x.getRating()>0).collect(Collectors.toList());
 
@@ -79,7 +86,7 @@ public class StreamsChallenge {
         count = series.stream()
                 .mapToInt(Series::getEpisodes)
                 .max()
-                .orElseThrow(IllegalStateException::new);
+                .orElse(0);
 
         System.out.println(String.format("Max number of episodes: %d",count));
         System.out.println("------------------------------------------------------------");
@@ -107,7 +114,7 @@ public class StreamsChallenge {
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
                 .distinct()
-                .sorted()
+                .sorted(String::compareToIgnoreCase)
                 .forEach(System.out::println);
 
         System.out.println("------------------------------------------------------------");
@@ -131,7 +138,7 @@ public class StreamsChallenge {
 
         Series mostEpisodesSeries = series.stream()
                 .max(Comparator.comparing(Series::getEpisodes))
-                .orElseThrow(NoSuchElementException::new);
+                .orElse(new Series());
 
         System.out.println("Name: " + mostEpisodesSeries.getName());
         System.out.println("Episodes: "  + mostEpisodesSeries.getEpisodes());
@@ -142,15 +149,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Studio:");
 
-        List<String> studios = getListOfAllParameters(Series::getStudios);
-
-        Map<String, Double> averages = studios.stream().collect(
-                Collectors.toMap(Function.identity(), currentStudio -> series.stream()
-                                .filter(currentsSeries ->
-                                        currentsSeries.getStudios().contains(currentStudio))
-                                .mapToDouble(Series::getRating)
-                                .average()
-                                .orElseThrow(IllegalStateException::new)));
+        Map<String, Double> averages = series.stream()
+            .flatMap(currentSeries ->
+                    currentSeries
+                            .getStudios()
+                            .stream()
+                            .map(currentStudio -> new Pair<> (currentStudio, currentSeries.getRating())))
+            .collect(Collectors.groupingBy(Pair::getKey, Collectors.averagingDouble(Pair::getValue)));
 
         Map.Entry<String, Double> maxAverage = getMaxAverage(averages);
 
@@ -164,15 +169,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best genre:");
 
-        List<String> genres = getListOfAllParameters(Series::getGenres);
-
-        Map<String, Double> averages = genres.stream().collect(
-                Collectors.toMap(Function.identity(), currentGenre -> series.stream()
-                        .filter(currentsSeries ->
-                                currentsSeries.getGenres().contains(currentGenre))
-                        .mapToDouble(Series::getRating)
-                        .average()
-                        .orElseThrow(IllegalStateException::new)));
+        Map<String, Double> averages = series.stream()
+                .flatMap(currentSeries ->
+                        currentSeries
+                                .getGenres()
+                                .stream()
+                                .map(currentGenres -> new Pair<> (currentGenres, currentSeries.getRating())))
+                .collect(Collectors.groupingBy(Pair::getKey, Collectors.averagingDouble(Pair::getValue)));
 
         Map.Entry<String, Double> maxAverage = getMaxAverage(averages);
 
@@ -186,15 +189,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Worst genre:");
 
-        List<String> genres = getListOfAllParameters(Series::getGenres);
-
-        Map<String, Double> averages = genres.stream().collect(
-                Collectors.toMap(Function.identity(), currentGenre -> series.stream()
-                        .filter(currentsSeries ->
-                                currentsSeries.getGenres().contains(currentGenre))
-                        .mapToDouble(Series::getRating)
-                        .average()
-                        .orElseThrow(IllegalStateException::new)));
+        Map<String, Double> averages = series.stream()
+                .flatMap(currentSeries ->
+                        currentSeries
+                                .getGenres()
+                                .stream()
+                                .map(currentGenres -> new Pair<> (currentGenres, currentSeries.getRating())))
+                .collect(Collectors.groupingBy(Pair::getKey, Collectors.averagingDouble(Pair::getValue)));
 
         Map.Entry<String, Double> minAverage = getMinAverage(averages);
 
@@ -204,9 +205,9 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
     }
 
-    private void getTop5MostCommonEpisodeCount(){
+    private void getTop5MostCommmonEpisodeCount(){
         System.out.println("------------------------------------------------------------");
-        System.out.println("Top 5 episode count:");
+        System.out.println("Top 5  episode count:");
 
         series.stream()
                 .collect(Collectors.groupingBy(Series::getEpisodes, Collectors.counting()))
@@ -220,7 +221,7 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
     }
 
-    private void getAverageRatingOfComedySeries(){
+    private void getAverageRatingOfCommedySeries(){
         System.out.println("------------------------------------------------------------");
         double average = 0;
 
@@ -228,7 +229,7 @@ public class StreamsChallenge {
                 .filter(s -> s.getGenres().contains("Comedy"))
                 .mapToDouble(Series::getRating)
                 .average()
-                .orElseThrow(IllegalStateException::new);
+                .orElse(0.0);
 
         System.out.println(String.format("Average rating of comedy series: %f",average));
         System.out.println("------------------------------------------------------------");
@@ -242,11 +243,11 @@ public class StreamsChallenge {
                 .filter(currentSeries -> currentSeries.getMainCast().contains("Sugita,Tomokazu"))
                 .map(Series::getGenres)
                 .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(e -> e, Collectors.counting()))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .max(Comparator.comparing(Map.Entry::getValue))
-                .orElseThrow(NoSuchElementException::new)
+                .get()
                 .getKey();
 
         System.out.println(mostCommonGenre);
@@ -258,15 +259,13 @@ public class StreamsChallenge {
         System.out.println("------------------------------------------------------------");
         System.out.println("Best Actor:");
 
-        List<String> actors = getListOfAllParameters(Series::getMainCast);
-
-        Map<String, Double> averages = actors.stream().collect(
-                Collectors.toMap(Function.identity(), currentActor -> series.stream()
-                        .filter(currentsSeries ->
-                                currentsSeries.getMainCast().contains(currentActor))
-                        .mapToDouble(Series::getRating)
-                        .average()
-                        .orElseThrow(IllegalStateException::new)));
+        Map<String, Double> averages = series.stream()
+                .flatMap(currentSeries ->
+                        currentSeries
+                                .getMainCast()
+                                .stream()
+                                .map(currentActor -> new Pair<> (currentActor, currentSeries.getRating())))
+                .collect(Collectors.groupingBy(Pair::getKey, Collectors.averagingDouble(Pair::getValue)));
 
         Map.Entry<String, Double> maxAverage = getMaxAverage(averages);
 
@@ -285,15 +284,13 @@ public class StreamsChallenge {
                 .filter(currentSeries -> currentSeries.getGenres().contains("Shounen"))
                 .collect(Collectors.toList());
 
-        List<String> shounenStudios = getListOfAllParameters(Series::getStudios, shounenSeries);
-
-        Map<String, Double> averages = shounenStudios.stream().collect(
-                Collectors.toMap(Function.identity(), currentShounenStudio -> series.stream()
-                        .filter(currentsSeries ->
-                                currentsSeries.getStudios().contains(currentShounenStudio))
-                        .mapToDouble(Series::getRating)
-                        .average()
-                        .orElseThrow(IllegalStateException::new)));
+        Map<String, Double> averages = shounenSeries.stream()
+                .flatMap(currentSeries ->
+                        currentSeries
+                                .getStudios()
+                                .stream()
+                                .map(currentActor -> new Pair<> (currentActor, currentSeries.getRating())))
+                .collect(Collectors.groupingBy(Pair::getKey, Collectors.averagingDouble(Pair::getValue)));
 
         Map.Entry<String, Double> maxAverage = getMaxAverage(averages);
 
@@ -304,24 +301,12 @@ public class StreamsChallenge {
 
     }
 
-    private List<String> getListOfAllParameters(Function<Series, List<String>> function, List<Series> series) {
-         return series.stream()
-                .map(function)
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    private List<String> getListOfAllParameters(Function<Series, List<String>> function) {
-        return getListOfAllParameters(function, this.series);
-    }
-
     private Map.Entry<String, Double> getMaxAverage(Map<String, Double> averages) {
         return averages
                 .entrySet()
                 .stream()
                 .max(Comparator.comparing(Map.Entry::getValue))
-                .orElseThrow(NoSuchElementException::new);
+                .get();
     }
 
     private Map.Entry<String, Double> getMinAverage(Map<String, Double> averages) {
@@ -329,6 +314,6 @@ public class StreamsChallenge {
                 .entrySet()
                 .stream()
                 .min(Comparator.comparing(Map.Entry::getValue))
-                .orElseThrow(NoSuchElementException::new);
+                .get();
     }
 }
