@@ -3,7 +3,6 @@ package com.internship.training;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.util.Pair;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import java.util.Map;
 
 
@@ -73,7 +71,7 @@ public class StreamsChallenge {
         average = series.stream()
                 .mapToInt(Series::getEpisodes)
                 .average()
-                .orElseThrow(IllegalStateException::new);
+                .orElse(0.0);
 
         System.out.println(String.format("Average number of episodes: %f",average));
         System.out.println("------------------------------------------------------------");
